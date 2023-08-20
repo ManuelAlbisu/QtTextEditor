@@ -11,8 +11,12 @@
 #include <QMenuBar>
 #include <QFile>
 #include <QFileDialog>
+#include <QFileInfo>
+#include <QPrinter>
+#include <QPrintDialog>
 #include <QApplication>
 #include <QMessageBox>
+#include <QSettings>
 #include <QList>
 #include <QIcon>
 #include <QAction>
@@ -31,6 +35,8 @@ private slots:
     void newFile();
     void openFile();
     void saveAs();
+    void openRecentFiles();
+    void printFile();
     void exit();
     void copyToClipboard();
     void pasteFromClipboard();
@@ -43,6 +49,12 @@ private:
     void createMenus();
     void createToolBars();
     void createContextMenu();
+    void readSettings();
+    void setCurrentFile(const QString &fileName);
+    QString strippedName(const QString &fullFileName);
+    bool readFile(const QString &fileName);
+    bool loadFile(const QString &fileName);
+    void updateRecentFileActions();
     //bool okayToContinue();
 
     QTextEdit *m_textEdit;
@@ -50,6 +62,12 @@ private:
     QAction *m_newFileAction;
     QAction *m_openFileAction;
     QAction *m_saveAsAction;
+    QAction *m_printAction;
+
+    enum { MaxRecentFiles = 5 };
+    QAction *m_recentFileActions[MaxRecentFiles];
+    QAction *m_separatorAction;
+
     QAction *m_exitAction;
     QAction *m_copyAction;
     QAction *m_pasteAction;
@@ -63,7 +81,8 @@ private:
     QToolBar *m_fileToolBar;
     QToolBar *m_editToolBar;
 
-    QString currentFile;
+    QString m_currentFile;
+    QStringList m_recentFiles;
 };
 
 #endif // MAINWINDOW_H
