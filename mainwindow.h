@@ -4,9 +4,11 @@
 #include <QMainWindow>
 
 #include <QTextEdit>
+#include <QVBoxLayout>
 #include <QTextStream>
 #include <QStatusBar>
 #include <QToolBar>
+#include <QDockWidget>
 #include <QMenu>
 #include <QMenuBar>
 #include <QFile>
@@ -22,6 +24,7 @@
 #include <QAction>
 #include <QString>
 #include <QIODevice>
+#include <QPushButton>
 
 class MainWindow : public QMainWindow
 {
@@ -30,6 +33,14 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
+protected:
+    void createActions();
+    void createMenus();
+    void createToolBars();
+    void createContextMenu();
+    void createDock();
+    void createPushButtons();
 
 private slots:
     void newFile();
@@ -45,10 +56,6 @@ private slots:
     void redo();
 
 private:
-    void createActions();
-    void createMenus();
-    void createToolBars();
-    void createContextMenu();
     void readSettings();
     void setCurrentFile(const QString &fileName);
     QString strippedName(const QString &fullFileName);
@@ -58,6 +65,7 @@ private:
     //bool okayToContinue();
 
     QTextEdit *m_textEdit;
+    QVBoxLayout *m_vLayout;
 
     QAction *m_newFileAction;
     QAction *m_openFileAction;
@@ -75,11 +83,21 @@ private:
     QAction *m_undoAction;
     QAction *m_redoAction;
 
+    QPushButton *m_newFileButton;
+    QPushButton *m_openFileButton;
+    QPushButton *m_saveAsButton;
+    QPushButton *m_printButton;
+    QPushButton *m_exitButton;
+
     QMenu *m_fileMenu;
     QMenu *m_editMenu;
+    QMenu *m_viewMenu;
 
     QToolBar *m_fileToolBar;
     QToolBar *m_editToolBar;
+
+    QDockWidget *m_fileDockWidget;
+    QWidget *m_fileButtonWidgets;
 
     QString m_currentFile;
     QStringList m_recentFiles;

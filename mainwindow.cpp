@@ -7,13 +7,17 @@ MainWindow::MainWindow(QWidget *parent)
     setCentralWidget(m_textEdit);
 
     createActions();
+    createPushButtons();
+
     createMenus();
     createToolBars();
     createContextMenu();
+    createDock();
 
     readSettings();
 
     setWindowIcon(QIcon(":/images/icon.ico"));
+    setWindowTitle(tr("Text Editor"));
     setCurrentFile("");
 }
 
@@ -26,14 +30,14 @@ void MainWindow::createActions()
 {
     // New file action
     m_newFileAction = new QAction(tr("&New File..."), this);
-    m_newFileAction->setIcon(QIcon(":/images/new.ico"));
+    m_newFileAction->setIcon(QIcon(":/images/new.png"));
     m_newFileAction->setShortcut(QKeySequence::New);
     m_newFileAction->setStatusTip(tr("Create a new file."));
     connect(m_newFileAction, SIGNAL(triggered()), this, SLOT(newFile()));
 
     // Open file action
     m_openFileAction = new QAction(tr("&Open File..."), this);
-    m_openFileAction->setIcon(QIcon(":/images/new.ico"));
+    m_openFileAction->setIcon(QIcon(":/images/new.png"));
     m_openFileAction->setShortcut(QKeySequence::Open);
     m_openFileAction->setStatusTip(tr("Open a file."));
     connect(m_openFileAction, SIGNAL(triggered()), this, SLOT(openFile()));
@@ -42,7 +46,7 @@ void MainWindow::createActions()
 
     // Save as action
     m_saveAsAction = new QAction(tr("&Save As..."), this);
-    m_saveAsAction->setIcon(QIcon(":/images/save-as.ico"));
+    m_saveAsAction->setIcon(QIcon(":/images/save-as.png"));
     m_saveAsAction->setShortcut(QKeySequence::SaveAs);
     m_saveAsAction->setStatusTip(tr("Save file as..."));
     connect(m_saveAsAction, SIGNAL(triggered()), this, SLOT(saveAs()));
@@ -71,38 +75,67 @@ void MainWindow::createActions()
 
     // Copy to clipboard action
     m_copyAction = new QAction(tr("&Copy"), this);
-    m_copyAction->setIcon(QIcon(":images/copy.ico"));
+    m_copyAction->setIcon(QIcon(":/images/copy.ico"));
     m_copyAction->setShortcut(QKeySequence::Copy);
     m_copyAction->setStatusTip(tr("Copy selected text to clipboard."));
     connect(m_copyAction, SIGNAL(triggered()), this, SLOT(copyToClipboard()));
 
     // Paste from clipboard action
     m_pasteAction = new QAction(tr("&Paste"), this);
-    m_pasteAction->setIcon(QIcon(":images/paste.ico"));
+    m_pasteAction->setIcon(QIcon(":/images/paste.png"));
     m_pasteAction->setShortcut(QKeySequence::Paste);
     m_pasteAction->setStatusTip(tr("Paste text from clipboard."));
     connect(m_pasteAction, SIGNAL(triggered()), this, SLOT(pasteFromClipboard()));
 
     // Cut to clipboard action
     m_cutAction = new QAction(tr("&Cut"), this);
-    m_cutAction->setIcon(QIcon(":images/cut.ico"));
+    m_cutAction->setIcon(QIcon(":/images/cut.png"));
     m_cutAction->setShortcut(QKeySequence::Cut);
     m_cutAction->setStatusTip(tr("Cut selected text to clipboard."));
     connect(m_cutAction, SIGNAL(triggered()), this, SLOT(cutToClipboard()));
 
     // Undo action
     m_undoAction = new QAction(tr("&Undo"), this);
-    m_undoAction->setIcon(QIcon(":images/undo.ico"));
+    m_undoAction->setIcon(QIcon(":/images/undo.png"));
     m_undoAction->setShortcut(QKeySequence::Undo);
     m_undoAction->setStatusTip(tr("Undo previous action."));
     connect(m_undoAction, SIGNAL(triggered()), this, SLOT(undo()));
 
     // Redo action
     m_redoAction = new QAction(tr("&Redo"), this);
-    m_redoAction->setIcon(QIcon(":images/redo.ico"));
+    m_redoAction->setIcon(QIcon(":/images/redo.png"));
     m_redoAction->setShortcut(QKeySequence::Redo);
     m_redoAction->setStatusTip(tr("Redo previous action."));
     connect(m_redoAction, SIGNAL(triggered()), this, SLOT(redo()));
+}
+
+// Creates clickable buttons
+void MainWindow::createPushButtons()
+{
+    // New file button
+    m_newFileButton = new QPushButton(tr("&New File"));
+    m_newFileButton->setStatusTip(tr("Open a new file."));
+    connect(m_newFileButton, SIGNAL(clicked()), this, SLOT(newFile()));
+
+    // Open file button
+    m_openFileButton = new QPushButton(tr("&Open File"), this);
+    m_openFileButton->setStatusTip(tr("Open a file."));
+    connect(m_openFileButton, SIGNAL(clicked()), this, SLOT(openFile()));
+
+    // Save as button
+    m_saveAsButton = new QPushButton(tr("&Save As"), this);
+    m_saveAsButton->setStatusTip(tr("Save file as..."));
+    connect(m_saveAsButton, SIGNAL(clicked()), this, SLOT(saveAs()));
+
+    // Print button
+    m_printButton = new QPushButton(tr("&Print"), this);
+    m_printButton->setStatusTip(tr("Print file."));
+    connect(m_printButton, SIGNAL(clicked()), this, SLOT(printFile()));
+
+    // Exit Button
+    m_exitButton = new QPushButton(tr("&Exit"), this);
+    m_exitButton->setStatusTip(tr("Exit application."));
+    connect(m_exitButton, SIGNAL(clicked()), this, SLOT(exit()));
 }
 
 // Create menu bar
@@ -135,6 +168,9 @@ void MainWindow::createMenus()
 
     m_editMenu->addAction(m_undoAction);
     m_editMenu->addAction(m_redoAction);
+
+    // View Menu
+    m_viewMenu = menuBar()->addMenu("&View");
 }
 
 // Creates a movable tool bar
@@ -169,6 +205,27 @@ void MainWindow::createContextMenu()
     m_textEdit->addAction(m_undoAction);
     m_textEdit->addAction(m_redoAction);
     m_textEdit->setContextMenuPolicy(Qt::ActionsContextMenu);
+}
+
+//
+void MainWindow::createDock()
+{
+    QDockWidget *m_fileDockWidget = new QDockWidget(tr("File Options"));
+    m_fileDockWidget->setObjectName("fileDockWidget");
+    m_fileDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    addDockWidget(Qt::RightDockWidgetArea, m_fileDockWidget);
+    m_viewMenu->addAction(m_fileDockWidget->toggleViewAction());
+
+    m_vLayout = new QVBoxLayout;
+    m_vLayout->addWidget(m_newFileButton);
+    m_vLayout->addWidget(m_openFileButton);
+    m_vLayout->addWidget(m_saveAsButton);
+    m_vLayout->addWidget(m_printButton);
+    m_vLayout->addWidget(m_exitButton);
+
+    m_fileButtonWidgets = new QWidget;
+    m_fileButtonWidgets->setLayout(m_vLayout);
+    m_fileDockWidget->setWidget(m_fileButtonWidgets);
 }
 
 void MainWindow::readSettings()
